@@ -1,0 +1,456 @@
+<<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trạm Tình Yêu Vũ Trụ - Ultimate Magic Love</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000000;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        #spaceCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .form-box {
+            position: relative;
+            background: rgba(15, 15, 25, 0.9);
+            backdrop-filter: blur(15px);
+            padding: 25px 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 105, 180, 0.5);
+            box-shadow: 0 0 40px rgba(255, 20, 147, 0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 90%;
+            max-width: 440px;
+            z-index: 10;
+            text-align: center;
+        }
+
+        .form-box h1 {
+            color: #ff69b4;
+            font-size: 24px;
+            margin: 0 0 5px 0;
+            text-shadow: 0 0 15px #ff1493;
+        }
+
+        .form-box input[type="text"] {
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #ff69b4;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 15px;
+            outline: none;
+            text-align: center;
+        }
+
+        .form-box input[type="file"] { display: none; }
+
+        .file-label {
+            background: rgba(255, 105, 180, 0.15);
+            border: 2px dashed #ff69b4;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: #ffb6c1;
+            font-size: 13px;
+            transition: 0.3s;
+        }
+
+        .file-label:hover {
+            background: rgba(255, 105, 180, 0.35);
+        }
+
+        .btn-submit {
+            background: linear-gradient(45deg, #ff1493, #ff69b4);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 20px #ff1493;
+            transition: 0.3s;
+        }
+
+        .btn-submit:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px #ff1493;
+        }
+
+        /* Trái tim Magic ở chính giữa */
+        .heart-container {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            text-align: center;
+            z-index: 100;
+        }
+
+        .magic-heart {
+            font-size: 150px;
+            color: #ff1493;
+            line-height: 1;
+            user-select: none;
+            animation: magicPulse 1.2s infinite alternate ease-in-out;
+            filter: drop-shadow(0 0 40px #ff1493) drop-shadow(0 0 80px #ff69b4);
+        }
+
+        .heart-text {
+            color: #ffb6c1;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 15px;
+            text-shadow: 0 0 10px #ff1493;
+            animation: blinkText 1.5s infinite alternate;
+            white-space: nowrap;
+        }
+
+        @keyframes magicPulse {
+            0% { transform: scale(1); filter: drop-shadow(0 0 30px #ff1493); }
+            100% { transform: scale(1.18); filter: drop-shadow(0 0 70px #ff1493) drop-shadow(0 0 100px #ff69b4); }
+        }
+
+        @keyframes blinkText {
+            0% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Chữ chúc mừng ở giữa (đã thu nhỏ tinh tế) */
+        .congrats-text {
+            display: none;
+            position: fixed;
+            top: 22%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            border: 1.5px solid #ff69b4;
+            padding: 10px 20px;
+            border-radius: 20px;
+            color: #ffb6c1;
+            font-size: 15px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 0 20px #ff1493;
+            z-index: 90;
+            animation: fadeInText 2s ease-in-out forwards;
+            max-width: 90%;
+            letter-spacing: 0.5px;
+        }
+
+        @keyframes fadeInText {
+            0% { opacity: 0; transform: translate(-50%, -20px); }
+            100% { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
+        /* Thanh chữ chạy liên tục ở đáy màn hình */
+        .marquee-container {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(15, 15, 25, 0.85);
+            border-top: 1px solid rgba(255, 105, 180, 0.4);
+            padding: 10px 0;
+            z-index: 95;
+            overflow: hidden;
+            white-space: nowrap;
+            box-shadow: 0 -5px 20px rgba(255, 20, 147, 0.3);
+        }
+
+        .marquee-text {
+            display: inline-block;
+            color: #ffb6c1;
+            font-size: 16px;
+            font-weight: bold;
+            text-shadow: 0 0 10px #ff1493;
+            animation: marqueeScroll 18s linear infinite;
+        }
+
+        @keyframes marqueeScroll {
+            0% { transform: translateX(100vw); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Các vật thể trôi lơ lửng */
+        .space-object {
+            position: fixed;
+            pointer-events: none;
+            user-select: none;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            will-change: transform;
+        }
+
+        .space-object img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid #ff69b4;
+            box-shadow: 0 0 15px #ff1493;
+        }
+
+        .space-text {
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: bold;
+            background: rgba(255, 20, 147, 0.75);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid #ff69b4;
+            box-shadow: 0 0 12px #ff1493;
+            white-space: nowrap;
+        }
+
+        .space-heart {
+            font-size: 30px;
+            filter: drop-shadow(0 0 10px #ff1493);
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="spaceCanvas"></canvas>
+
+    <audio id="bgMusic" loop preload="auto"></audio>
+
+    <div class="form-box" id="formBox">
+        <h1>✨ TRẠM TÌNH YÊU VŨ TRỤ ✨</h1>
+        <input type="text" id="partnerName" placeholder="Nhập tên hai bạn hoặc lời nhắn..." required>
+        
+        <label for="imageInput" class="file-label" id="fileLabel">
+            📸 Chọn NHIỀU ẢNH kỷ niệm (Giữ Ctrl để chọn nhiều)
+        </label>
+        <input type="file" id="imageInput" accept="image/*" multiple>
+
+        <label for="musicInput" class="file-label" id="musicLabel">
+            🎵 Chọn file nhạc nền (.mp3 của bạn)
+        </label>
+        <input type="file" id="musicInput" accept="audio/*">
+
+        <button class="btn-submit" onclick="startLoveStation()">KÍCH HOẠT TRÁI TIM 💖</button>
+    </div>
+
+    <div class="heart-container" id="heartContainer" onclick="explodeSpaceLove()">
+        <div class="magic-heart">💖</div>
+        <div class="heart-text">✨ Chạm để nổ tung vũ trụ tình yêu! ✨</div>
+    </div>
+
+    <!-- Chúc mừng ở giữa đã thu nhỏ -->
+    <div class="congrats-text" id="congratsText">
+        🎉 Chúc 2 bạn mãi bên nhau trọn đời, yêu nhau thật nhiều! Cảm ơn bạn vì đã sử dụng web của mình nhaa ❤️
+    </div>
+
+    <!-- Chữ chạy ở đáy màn hình -->
+    <div class="marquee-container" id="marqueeContainer">
+        <div class="marquee-text" id="marqueeTextContent"></div>
+    </div>
+
+    <script>
+        // Hiệu ứng nền vũ trụ
+        const canvas = document.getElementById('spaceCanvas');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        for (let i = 0; i < 180; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 1.5,
+                alpha: Math.random(),
+                speed: Math.random() * 0.015
+            });
+        }
+
+        function animateStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            stars.forEach(star => {
+                star.alpha += star.speed;
+                if (star.alpha > 1 || star.alpha < 0) star.speed = -star.speed;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${Math.abs(star.alpha)})`;
+                ctx.fill();
+            });
+            requestAnimationFrame(animateStars);
+        }
+        animateStars();
+
+        // Xử lý chọn NHIỀU ảnh
+        let uploadedImages = [];
+        let messageText = "";
+
+        document.getElementById('imageInput').addEventListener('change', async function(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                uploadedImages = await Promise.all(Array.from(files).map(file => {
+                    return new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.readAsDataURL(file);
+                    });
+                }));
+
+                document.getElementById('fileLabel').innerText = `✅ Đã chọn thành công ${uploadedImages.length} ảnh!`;
+                document.getElementById('fileLabel').style.borderColor = "#00ffcc";
+                document.getElementById('fileLabel').style.color = "#00ffcc";
+            }
+        });
+
+        // Xử lý chọn nhạc
+        let customMusicUrl = "";
+        document.getElementById('musicInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                customMusicUrl = URL.createObjectURL(file);
+                document.getElementById('musicLabel').innerText = `🎵 Đã chọn nhạc: ${file.name}`;
+                document.getElementById('musicLabel').style.borderColor = "#00ffcc";
+                document.getElementById('musicLabel').style.color = "#00ffcc";
+            }
+        });
+
+        function startLoveStation() {
+            const nameInput = document.getElementById('partnerName').value.trim();
+            if (!nameInput) {
+                alert("Bạn ơi, hãy nhập tên hoặc lời nhắn nhé!");
+                return;
+            }
+
+            messageText = nameInput;
+
+            // Gán chữ vào thanh chạy ở đáy
+            document.getElementById('marqueeTextContent').innerText = `✨ ${messageText} ✨   💖   ✨ ${messageText} ✨   💖   ✨ ${messageText} ✨`;
+
+            // Phát nhạc
+            const music = document.getElementById('bgMusic');
+            if (customMusicUrl) {
+                music.src = customMusicUrl;
+            } else {
+                music.src = "https://files.catbox.moe/3e52f0.mp3";
+            }
+            music.play().catch(() => {});
+
+            // Ẩn form, hiện trái tim
+            document.getElementById('formBox').style.display = "none";
+            document.getElementById('heartContainer').style.display = "block";
+        }
+
+        let spaceObjects = [];
+        let isExploded = false;
+
+        function explodeSpaceLove() {
+            if (isExploded) return;
+            isExploded = true;
+            
+            // Ẩn trái tim, hiện chữ chúc mừng và thanh chạy ở đáy
+            document.getElementById('heartContainer').style.display = "none";
+            document.getElementById('congratsText').style.display = "block";
+            document.getElementById('marqueeContainer').style.display = "block";
+
+            const totalToSpawn = 35; 
+            const startX = window.innerWidth / 2;
+            const startY = window.innerHeight / 2;
+
+            for (let i = 0; i < totalToSpawn; i++) {
+                const el = document.createElement('div');
+                el.className = 'space-object';
+
+                let type = Math.floor(Math.random() * 3);
+                if (type === 0 && uploadedImages.length === 0) type = 1;
+
+                if (type === 0 && uploadedImages.length > 0) {
+                    const img = document.createElement('img');
+                    img.src = uploadedImages[i % uploadedImages.length];
+                    el.appendChild(img);
+                } else if (type === 1) {
+                    const txt = document.createElement('div');
+                    txt.className = 'space-text';
+                    txt.innerText = messageText;
+                    el.appendChild(txt);
+                } else {
+                    const h = document.createElement('div');
+                    h.className = 'space-heart';
+                    h.innerText = ['💖', '💗', '💕', '❤', '✨'][Math.floor(Math.random() * 5)];
+                    el.appendChild(h);
+                }
+
+                document.body.appendChild(el);
+
+                // Tỏa đều 4 hướng, tốc độ chậm rãi, êm ái
+                const angle = (Math.PI * 2 / totalToSpawn) * i + (Math.random() * 0.2);
+                const speed = Math.random() * 1.2 + 0.8; // Tốc độ bay chậm từ từ
+
+                spaceObjects.push({
+                    element: el,
+                    x: startX,
+                    y: startY,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    rot: Math.random() * 360,
+                    vRot: (Math.random() - 0.5) * 1.0
+                });
+            }
+
+            updateFloatingObjects();
+        }
+
+        // Vòng lặp bay lơ lửng, nảy qua lại biên màn hình
+        function updateFloatingObjects() {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+
+            for (let i = 0; i < spaceObjects.length; i++) {
+                let o = spaceObjects[i];
+
+                o.x += o.vx;
+                o.y += o.vy;
+                o.rot += o.vRot;
+
+                // Nảy biên (tránh khu vực đáy để không đè lên thanh chữ chạy)
+                if (o.x < 40 || o.x > w - 40) o.vx *= -1;
+                if (o.y < 40 || o.y > h - 80) o.vy *= -1;
+
+                o.element.style.transform = `translate(${o.x - window.innerWidth/2}px, ${o.y - window.innerHeight/2}px) rotate(${o.rot}deg)`;
+            }
+
+            requestAnimationFrame(updateFloatingObjects);
+        }
+    </script>
+</body>
+</html>
